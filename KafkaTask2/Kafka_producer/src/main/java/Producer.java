@@ -1,15 +1,14 @@
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.*;
-
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Properties;
 
 public class Producer {
     private static final Logger logger = LogManager.getLogger(String.valueOf(Producer.class));
@@ -22,23 +21,29 @@ public class Producer {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, CustomPartitioner.class.getName());
 
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
 
-        Set<String> uniqueKeys = new HashSet<>();
-        collectUniqueKeys(csvFile, uniqueKeys);
-
-        Map<String, Integer> partitionMap = assignPartitions(uniqueKeys);
-
-        publishFileToTopic(producer, topicName, csvFile, partitionMap);
-
+        try (var lines = Files.lines(Paths.get(csvFile))) {
+            lines.forEach(line -> {
+                String[] parts = line.split(",");
+                if (parts.length >= 2) {
+                    String key = parts[0];
+                    ProducerRecord<String, String> record = new ProducerRecord<>(topicName, key, line);
+                    producer.send(record);
+                }
+            });
+        } catch (IOException e) {
+            logger.error("Error reading the file", e);
+        }
         logger.info("Producer application finished.");
 
         producer.flush();
         producer.close();
     }
 
-    private static void collectUniqueKeys(String csvFile, Set<String> uniqueKeys) throws IOException {
+/*    private static void collectUniqueKeys(String csvFile, Set<String> uniqueKeys) throws IOException {
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -68,5 +73,5 @@ public class Producer {
                 logger.info("Sent record to topic {} with key {}: {}", topicName, key, line);
             }
         }
-    }
+    }*/
 }

@@ -16,13 +16,12 @@ public class Consumer {
     private static int currentSum = 0;
 
     public static void main(String[] args) {
-        if (args.length < 2) {
-            logger.error("Please provide the consumer instance number and partition as arguments.");
+        if (args.length < 1) {
+            logger.error("Please provide the consumer instance number as arguments.");
             System.exit(1);
         }
 
         String consumerInstance = args[0];
-        int partitionId = Integer.parseInt(args[1]);
 
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
@@ -34,9 +33,7 @@ public class Consumer {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 
         try (consumer) {
-            TopicPartition partition = new TopicPartition("shop-events", partitionId);
-            consumer.assign(Collections.singletonList(partition));
-
+            consumer.subscribe(Collections.singletonList("shop-events"));
             while (true) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, String> record : records) {

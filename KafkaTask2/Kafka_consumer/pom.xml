@@ -37,6 +37,12 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.23.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>Kafka_producer</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
 
     </dependencies>
 
