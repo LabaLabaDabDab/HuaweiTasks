@@ -1,9 +1,10 @@
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.Timestamp;
 
 public class Sale {
+    private static final Logger logger = LoggerFactory.getLogger(Sale.class);
     public String category;
     public int amount;
     public long timestamp;
@@ -18,13 +19,8 @@ public class Sale {
         String[] parts = line.split(",");
         String category = parts[0];
         int amount = Integer.parseInt(parts[1]);
-        long timestamp = parseTimestamp(parts[2]);
+        long timestamp = Timestamp.valueOf(parts[2]).getTime();
+        logger.info("Parsed Sale: category={}, amount={}, timestamp={}", category, amount, timestamp);
         return new Sale(category, amount, timestamp);
-    }
-
-    private static long parseTimestamp(String timestampStr) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(timestampStr, formatter);
-        return dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 }

@@ -31,6 +31,8 @@
                 <excludes>
                   <exclude>org.apache.flink:force-shading</exclude>
                   <exclude>com.google.code.findbugs:jsr305</exclude>
+                  <exclude>org.slf4j:*</exclude>
+                  <exclude>log4j:*</exclude>
                 </excludes>
               </artifactSet>
               <filters>
@@ -69,6 +71,11 @@
           <artifactId>flink-streaming-java</artifactId>
           <version>${flink.version}</version>
           <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.flink</groupId>
+          <artifactId>flink-runtime-web</artifactId>
+          <version>${flink.version}</version>
         </dependency>
       </dependencies>
     </profile>
