@@ -1,0 +1,62 @@
+version: "3.7"
+services:
+  node_a:
+    image: cassandra:latest
+    container_name: node_a
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TestCluster
+      - CASSANDRA_SEEDS=node_a, node_d
+    volumes:
+      - ./node_a_data:/var/lib/cassandra
+    ports:
+      - "9042:9042"
+    networks:
+      - cassandra_net
+
+  node_b:
+    image: cassandra:latest
+    container_name: node_b
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TestCluster
+      - CASSANDRA_SEEDS=node_a, node_d
+    volumes:
+      - ./node_b_data:/var/lib/cassandra
+    ports:
+      - "9043:9042"
+    networks:
+      - cassandra_net
+    depends_on:
+      - node_a
+
+  node_c:
+    image: cassandra:latest
+    container_name: node_c
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TestCluster
+      - CASSANDRA_SEEDS=node_a, node_d
+    volumes:
+      - ./node_c_data:/var/lib/cassandra
+    ports:
+      - "9044:9042"
+    networks:
+      - cassandra_net
+    depends_on:
+      - node_a
+
+  node_d:
+    image: cassandra:latest
+    container_name: node_d
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TestCluster
+      - CASSANDRA_SEEDS=node_a, node_d
+    volumes:
+      - ./node_d_data:/var/lib/cassandra
+    ports:
+      - "9045:9042"
+    networks:
+      - cassandra_net
+    depends_on:
+      - node_a
+
+networks:
+  cassandra_net:
